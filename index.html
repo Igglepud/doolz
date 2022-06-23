@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="node_modules/socket.io/client-dist/socket.io.js"></script>
+
+    <script src="lib/jquery.js"></script>
+    <script>
+      var name = "";
+
+      $(document).ready(function () {
+        $("#form").hide();
+
+        var socket = io(":3000");
+        $("#nameSubmissionButton").on("click", function () {
+          if ($("#nameBox").val() != "") {
+            name = $("#nameBox").val();
+            $("#button").fadeOut(200, function () {
+              $("#form").slideDown();
+              socket.emit("username", name);
+            });
+          }
+        });
+        $("#send").on("click", function () {
+          if (name == "") {
+            return;
+          }
+          if ($("#input").val() != "") {
+            socket.emit("chat message", name + ": " + $("#input").val());
+            $("#input").val("");
+          }
+        });
+
+        $("#draw").on("click", function () {
+          socket.emit("shoot");
+          $(this).hide();
+        });
+
+        $("body").on("click", ".user", function () {
+          socket.emit("challenge", $(this).html());
+        });
+
+        socket.on("end duel", function () {
+          $("#draw").hide();
+        });
+
+        socket.on("chat message", function (msg) {
+          var item = document.createElement("li");
+          item.textContent = msg;
+          // messages.appendChild(item);
+          $("#messages").append(item);
+          window.scrollTo(0, document.body.scrollHeight);
+        });
+
+        socket.on("Draw!", function () {
+          $("#draw").show();
+        });
+
+        socket.on("updateActiveUsers", function (data) {
+          $("#users").html("");
+
+          data.forEach((item) => {
+            $("#users").append("<li class= 'user'>" + item + "</li>");
+          });
+        });
+      });
+    </script>
+
+    <title>Socket.IO chat</title>
+    <style>
+      body {
+        margin: 0;
+        padding-bottom: 3rem;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          Helvetica, Arial, sans-serif;
+        background: #9a3599;
+      }
+
+      #button {
+        background: #9a3599;
+        padding: 0.25rem;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        height: 3rem;
+        backdrop-filter: blur(10px);
+        width: 200px;
+        height: 80px;
+        border-radius: 4px;
+        color: #ccc;
+        text-align: center;
+      }
+
+      #nameSubmissionButton {
+        position: relative;
+      }
+
+      #form {
+        background: linear-gradient(to bottom right, #fdf851, #51fdf8, #fdf851);
+        padding: 0.25rem;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        display: flex;
+        height: 3rem;
+        box-sizing: border-box;
+        backdrop-filter: blur(10px);
+      }
+      #input {
+        border: none;
+        padding: 0 1rem;
+        flex-grow: 1;
+        border-radius: 2rem;
+        margin: 0.25rem;
+        background-color: #ffffff;
+      }
+      #input:focus {
+        outline: none;
+      }
+      #userList {
+        width: 200px;
+        background-color: aliceblue;
+        float: right;
+      }
+      #form > button {
+        background: #9a3599;
+        border: none;
+        padding: 0 1rem;
+        margin: 0.25rem;
+        border-radius: 3px;
+        outline: none;
+        color: #fff;
+      }
+      #draw {
+        display: none;
+        position: absolute;
+        left: 200px;
+        top: 200px;
+        border: 2px solid green;
+        padding: 20px;
+        background-color: pink;
+      }
+      #messages {
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+      }
+      #messages > li {
+        padding: 0.5rem 1rem;
+      }
+      #messages > li:nth-child(odd) {
+        background: #efefef;
+      }
+      #messages > li:nth-child(even) {
+        background: #ffffff;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="userList">
+      Active users:
+      <ul id="users">
+        <li>Test1</li>
+        <li>Test2</li>
+        <li>Test3</li>
+      </ul>
+    </div>
+    <div id="draw">Draw!</div>
+    <div id="button" style="color: #fdf851">
+      Enter your name:
+      <input type="text" id="nameBox" />
+
+      <div id="nameSubmissionButton" type="button">
+        <button>Join chat</button>
+      </div>
+    </div>
+
+    <ul id="messages"></ul>
+
+    <div id="form" action="">
+      <input id="input" autocomplete="off" /><button id="send">Send</button>
+    </div>
+  </body>
+</html>
