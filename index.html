@@ -2,7 +2,6 @@
 <html>
   <head>
     <script src="node_modules/socket.io/client-dist/socket.io.js"></script>
-
     <script src="lib/jquery.js"></script>
     <script>
       var name = "";
@@ -10,7 +9,7 @@
       $(document).ready(function () {
         $("#form").hide();
 
-        var socket = io(":3000");
+        var socket = io(":3031");
         $("#nameSubmissionButton").on("click", function () {
           if ($("#nameBox").val() != "") {
             name = $("#nameBox").val();
